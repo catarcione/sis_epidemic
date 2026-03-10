@@ -23,7 +23,7 @@ def sum_first_t(dictionary, t):
     result = defaultdict(float)
 
     for i in range(t+1):
-        for key, score in dictionary[i-1].items():
+        for key, score in dictionary[i].items():
             result[key] += score
 
     return dict(result)
