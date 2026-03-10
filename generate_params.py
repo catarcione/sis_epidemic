@@ -4,7 +4,7 @@ import itertools
 asymp_rates = [0.1, 0.25, 0.50]
 snaps_intervals = [1, 10, 100]
 graph_types = ['ba', 'ws', 'er']
-n_runs = 100
+n_runs = 30
 
 with open("params.txt", "w") as f:
     for asymp_rate, snaps_interval, gtype in itertools.product(asymp_rates, snaps_intervals, graph_types):

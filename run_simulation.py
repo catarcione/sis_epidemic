@@ -11,13 +11,13 @@ import metrics
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--beta", type=float, required=True)
-    parser.add_argument("--gamma", type=float, required=True)
     parser.add_argument("--asymptomatic_rate", type=float, required=True)
-    parser.add_argument("--initial_infected_count", type=int, required=True)
-    parser.add_argument("--num_snapshots", type=int, required=True)
     parser.add_argument("--snapshots_interval", type=int, required=True)
     parser.add_argument("--run_id", type=int, required=True)
+    parser.add_argument("--beta", type=float, required=0.1)
+    parser.add_argument("--gamma", type=float, required=0.1)
+    parser.add_argument("--initial_infected_count", type=int, default=50)
+    parser.add_argument("--num_snapshots", type=int, default=10)
     parser.add_argument("--burn_in_steps", type=int, default=1000)
     parser.add_argument("--graph_type", type=str, default="ba")
     parser.add_argument("--n_nodes", type=int, default=3000)
