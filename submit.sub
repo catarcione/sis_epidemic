@@ -13,6 +13,6 @@ when_to_transfer_output = ON_EXIT
 transfer_input_files = run_sim.sh, run_simulation.py, epidemic.py, metrics.py
 transfer_output_files = results
 
-initialdir = /home/users/conrado/si-characterization
+initialdir = /home/users/conrado/sis_epidemic
 
 queue params from params.txt
