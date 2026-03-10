@@ -1,0 +1,18 @@
+executable = run_sim.sh
+arguments = $(params)
+
+output = logs/out_$(Process).log
+error  = logs/err_$(Process).log
+log    = logs/condor.log
+
+request_cpus = 1
+request_memory = 1GB
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = run_sim.sh, run_simulation.py, epidemic.py, metrics.py
+transfer_output_files = results
+
+initialdir = /home/users/conrado/si-characterization
+
+queue params from params.txt
