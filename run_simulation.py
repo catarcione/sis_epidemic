@@ -84,7 +84,7 @@ def main():
         random_results = {}
 
         for k in top_ks:
-            betw_top = list(betw_rank.keys())[:top_ks]
+            betw_top = list(betw_rank.keys())[:k]
             random_top = random.sample(list(betw_rank.keys()), k)
 
             obs_betw_fpr = len(set(betw_top) - asymptomatic) / len(graph.nodes() - obs)
