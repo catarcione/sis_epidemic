@@ -1,8 +1,8 @@
 # generate_params.py
 import itertools
 
-asymp_rates = [0.1, 0.25, 0.50]
-snaps_intervals = [1, 10, 100]
+asymp_rates = [0.01, 0.05, 0.1]
+snaps_intervals = [1, 2, 4, 8, 16]
 graph_types = ['ba', 'ws', 'er']
 n_runs = 30
 

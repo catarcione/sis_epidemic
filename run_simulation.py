@@ -14,8 +14,8 @@ def main():
     parser.add_argument("--asymptomatic_rate", type=float, required=True)
     parser.add_argument("--snapshots_interval", type=int, required=True)
     parser.add_argument("--run_id", type=int, required=True)
-    parser.add_argument("--beta", type=float, default=0.1)
-    parser.add_argument("--gamma", type=float, default=0.1)
+    parser.add_argument("--beta", type=float, default=0.01)
+    parser.add_argument("--gamma", type=float, default=0.01)
     parser.add_argument("--initial_infected_count", type=int, default=50)
     parser.add_argument("--num_snapshots", type=int, default=10)
     parser.add_argument("--burn_in_steps", type=int, default=1000)
@@ -111,7 +111,7 @@ def main():
         "random_fprs": random_fprs
     }
 
-    filename = f"graph_{args.graph_type}_asymp_rate_{args.asymptomatic_rate}_num_snaps_{args.num_snapshots}_snaps_interval_{args.snapshots_interval}_run{args.run_id}.json"
+    filename = f"graph_{args.graph_type}_asymp_rate_{args.asymptomatic_rate}_snaps_interval_{args.snapshots_interval}_run{args.run_id}.json"
 
     filepath = os.path.join(args.output_dir, filename)
 
