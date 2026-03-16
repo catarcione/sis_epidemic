@@ -52,19 +52,22 @@ def main():
     snapshots = epidemic.collect_snapshots(graph, args.beta, args.gamma, infected, args.num_snapshots, args.snapshots_interval)
 
     observed_betws = {}
+    contacts = {}
     observations = {}
 
     for t, I_t in enumerate(snapshots):
         O_t = I_t - asymptomatic
         obs_betw = metrics.observed_betweenness(graph, O_t)
         observed_betws[t] = obs_betw
+        cont = metrics.contact(graph, O_t)
+        contacts[t] = cont
         if t > 0:
             O_t = O_t | observations[t-1]
         observations[t] = O_t
 
     bound_fprs = {}
-    random_fprs = {}
     obs_betw_fprs = {}
+    contact_fprs = {}
 
     num_asymp = len(asymptomatic)
     fracs = [0.1, 0.2, 0.5, 0.75, 1]
@@ -74,30 +77,35 @@ def main():
         obs = observations[t]
 
         betw = metrics.sum_first_t(observed_betws, t)
+        conts = metrics.sum_first_t(contacts, t)
         candidates = [node for node in betw if node not in obs]
         betw_eval = {}
+        cont_eval = {}
         for i in candidates:
             betw_eval[i] = betw[i]
+            cont_eval[i] = conts[i]
         betw_rank = dict(sorted(betw_eval.items(), key=lambda item: item[1], reverse=True))
+        cont_rank = dict(sorted(cont_eval.items(), key=lambda item: item[1], reverse=True))
+
 
         betw_results = {}
-        random_results = {}
+        cont_results = {}
 
         for frac, k in zip(fracs, top_ks):
             betw_top = list(betw_rank.keys())[:k]
-            random_top = random.sample(list(candidates), k)
+            cont_top = list(cont_rank.keys())[:k]
 
             obs_betw_fpr = len(set(betw_top) - asymptomatic) / k
-            random_fpr = len(set(random_top) - asymptomatic) / k
+            cont_fpr = len(set(cont_top) - asymptomatic) / k
 
             betw_results["top-" + str(frac)] = obs_betw_fpr
-            random_results["top-" + str(frac)] = random_fpr
+            cont_results["top-" + str(frac)] = cont_fpr
 
         bound_fpr = len((graph.nodes() - obs) - asymptomatic)  / len(graph.nodes() - obs)
 
         bound_fprs[str(t+1)+" snapshots"] = bound_fpr
         obs_betw_fprs[str(t+1)+" snapshots"] = betw_results
-        random_fprs[str(t+1)+" snapshots"] = random_results
+        contact_fprs[str(t+1)+" snapshots"] = cont_results
 
     data = {
         "seed": seed,
@@ -108,7 +116,7 @@ def main():
         "snapshots_interval": args.snapshots_interval,
         "bound_fprs": bound_fprs,
         "obs_betw_fprs": obs_betw_fprs,
-        "random_fprs": random_fprs
+        "cont_fprs": contact_fprs
     }
 
     filename = f"graph_{args.graph_type}_asymp_rate_{args.asymptomatic_rate}_snaps_interval_{args.snapshots_interval}_run{args.run_id}.json"
