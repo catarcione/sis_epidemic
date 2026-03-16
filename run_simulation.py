@@ -83,18 +83,15 @@ def main():
         betw_results = {}
         random_results = {}
 
-        for k in top_ks:
+        for frac, k in zip(fracs, top_ks):
             betw_top = list(betw_rank.keys())[:k]
-            random_top = random.sample(list(candidates),k)
-
-            # obs_betw_fpr = len(set(betw_top) - asymptomatic) / len(graph.nodes() - obs)
-            # random_fpr = len(set(random_top) - asymptomatic) / len(graph.nodes() - obs)
+            random_top = random.sample(list(candidates), k)
 
             obs_betw_fpr = len(set(betw_top) - asymptomatic) / k
             random_fpr = len(set(random_top) - asymptomatic) / k
 
-            betw_results["top-"+str(k)] = obs_betw_fpr
-            random_results["top-"+str(k)] = random_fpr
+            betw_results["top-" + str(frac)] = obs_betw_fpr
+            random_results["top-" + str(frac)] = random_fpr
 
         bound_fpr = len((graph.nodes() - obs) - asymptomatic)  / len(graph.nodes() - obs)
 
