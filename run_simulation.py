@@ -59,11 +59,13 @@ def main():
         O_t = I_t - asymptomatic
         obs_betw = metrics.observed_betweenness(graph, O_t)
         observed_betws[t] = obs_betw
-        cont = metrics.contact(graph, O_t)
-        contacts[t] = cont
+        # cont = metrics.contact(graph, O_t)
+        # contacts[t] = cont
         if t > 0:
             O_t = O_t | observations[t-1]
         observations[t] = O_t
+        cont = metrics.contact(graph, O_t)
+        contacts[t] = cont
 
     bound_fprs = {}
     obs_betw_fprs = {}
@@ -77,7 +79,7 @@ def main():
         obs = observations[t]
 
         betw = metrics.sum_first_t(observed_betws, t)
-        conts = metrics.sum_first_t(contacts, t)
+        conts = contacts[t]
         candidates = [node for node in betw if node not in obs]
         betw_eval = {}
         cont_eval = {}
