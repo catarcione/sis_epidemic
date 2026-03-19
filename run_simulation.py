@@ -72,7 +72,7 @@ def main():
     contact_fprs = {}
 
     num_asymp = len(asymptomatic)
-    fracs = [0.1, 0.2, 0.5, 0.75, 1]
+    fracs = [0.1, 0.5, 1]
     top_ks = [int(x * num_asymp) for x in fracs]
 
     for t, I_t in enumerate(snapshots):

@@ -1,10 +1,10 @@
 # generate_params.py
 import itertools
 
-asymp_rates = [0.01, 0.05, 0.1]
-snaps_intervals = [1, 2, 4, 8, 16, 32, 64, 128]
+asymp_rates = [0.02, 0.1]
+snaps_intervals = [2, 4, 8, 32]
 graph_types = ['ba', 'ws', 'er']
-n_runs = 30
+n_runs = 100
 
 with open("params.txt", "w") as f:
     for asymp_rate, snaps_interval, gtype in itertools.product(asymp_rates, snaps_intervals, graph_types):
