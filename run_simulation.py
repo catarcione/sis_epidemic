@@ -59,17 +59,33 @@ def main():
         O_t = I_t - asymptomatic
         obs_betw = metrics.observed_betweenness(graph, O_t)
         observed_betws[t] = obs_betw
-        # cont = metrics.contact(graph, O_t)
-        # contacts[t] = cont
+
         if t > 0:
             O_t = O_t | observations[t-1]
         observations[t] = O_t
+
         cont = metrics.contact(graph, O_t)
         contacts[t] = cont
 
-    bound_fprs = {}
-    obs_betw_fprs = {}
-    contact_fprs = {}
+    naive_scores = {}
+    obs_betw_scores = {}
+    contact_scores = {}
+
+    def compute_metrics(pred_set, true_set):
+        tp = len(pred_set & true_set)
+        fp = len(pred_set - true_set)
+        fn = len(true_set - pred_set)
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = (2 * precision * recall / (precision + recall)
+            if (precision + recall) > 0 else 0)
+
+        return {
+            "precision": precision,
+            "recall": recall,
+            "f1": f1
+        }
 
     num_asymp = len(asymptomatic)
     fracs = [0.1, 0.5, 1]
@@ -80,34 +96,32 @@ def main():
 
         betw = metrics.sum_first_t(observed_betws, t)
         conts = contacts[t]
-        candidates = [node for node in betw if node not in obs]
-        betw_eval = {}
-        cont_eval = {}
-        for i in candidates:
-            betw_eval[i] = betw[i]
-            cont_eval[i] = conts[i]
-        betw_rank = dict(sorted(betw_eval.items(), key=lambda item: item[1], reverse=True))
-        cont_rank = dict(sorted(cont_eval.items(), key=lambda item: item[1], reverse=True))
 
+        candidates = [node for node in graph.nodes() if node not in obs]
+
+        betw_eval = {i: betw[i] for i in candidates}
+        cont_eval = {i: conts[i] for i in candidates}
+
+        betw_rank = dict(sorted(betw_eval.items(), key=lambda x: x[1], reverse=True))
+        cont_rank = dict(sorted(cont_eval.items(), key=lambda x: x[1], reverse=True))
 
         betw_results = {}
         cont_results = {}
 
         for frac, k in zip(fracs, top_ks):
-            betw_top = list(betw_rank.keys())[:k]
-            cont_top = list(cont_rank.keys())[:k]
+            betw_top = set(list(betw_rank.keys())[:k])
+            cont_top = set(list(cont_rank.keys())[:k])
 
-            obs_betw_fpr = len(set(betw_top) - asymptomatic) / k
-            cont_fpr = len(set(cont_top) - asymptomatic) / k
+            betw_results[f"top-{frac}"] = compute_metrics(betw_top, asymptomatic)
+            cont_results[f"top-{frac}"] = compute_metrics(cont_top, asymptomatic)
 
-            betw_results["top-" + str(frac)] = obs_betw_fpr
-            cont_results["top-" + str(frac)] = cont_fpr
+        # naive baseline: all unobserved nodes predicted as asymptomatic
+        naive_pred = set(graph.nodes()) - set(obs)
+        naive_metrics = compute_metrics(naive_pred, asymptomatic)
 
-        bound_fpr = len((graph.nodes() - obs) - asymptomatic)  / len(graph.nodes() - obs)
-
-        bound_fprs[str(t+1)+" snapshots"] = bound_fpr
-        obs_betw_fprs[str(t+1)+" snapshots"] = betw_results
-        contact_fprs[str(t+1)+" snapshots"] = cont_results
+        naive_scores[f"{t+1} snapshots"] = naive_metrics
+        obs_betw_scores[f"{t+1} snapshots"] = betw_results
+        contact_scores[f"{t+1} snapshots"] = cont_results
 
     data = {
         "seed": seed,
@@ -116,10 +130,9 @@ def main():
         "asymptomatic_rate": args.asymptomatic_rate,
         "num_snapshots": args.num_snapshots,
         "snapshots_interval": args.snapshots_interval,
-        "bound_fprs": bound_fprs,
-        "obs_betw_fprs": obs_betw_fprs,
-        "cont_fprs": contact_fprs
-    }
+        "naive_metrics": naive_scores,
+        "obs_betw_metrics": obs_betw_scores,
+        "contact_metrics": contact_scores}
 
     filename = f"graph_{args.graph_type}_asymp_rate_{args.asymptomatic_rate}_snaps_interval_{args.snapshots_interval}_run{args.run_id}.json"
 
